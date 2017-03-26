@@ -1,2 +1,29 @@
 # pdx.cob52.upgrade
-Dynamic Allocation upgrade (AUTUT2)
+Dynamic Allocation upgrade (AUTUT2)  Code snippet:
+
+B020      BAL   R12,D010   PROCESS SUBSYS REQUESTS                       01760001
+          CLI   URECFM,C'U' ALLOCATING  LOAD LIBRARY?                    KD179295
+          BNE   B022        NO...SKIP PDSE LOGIC                         KD170205
+*         ENSURE THAT LOAD LIBRARIES ARE ALLOCATED AS PDSE DATASETS      KD170205          
+          LA    R2,4(,R2)   POINT TO NEXT ALLOC TEXT SLOT                KD170205
+          LA    R0,ALLOCTPK GET DSN TYPE KEY ADDR                        KD170205
+          ST    R0,0(,R2)   STORE IN TEXT SLOT                           KD170205
+          LA    R2,4(,R2)   POINT TO NEXT ALLOC TEXT SLOT                KD170205
+          LA    R0,ALLOCVRK GET PDSE VERSION KEY                         KD170205
+          ST    R0,0(,R2)   STORE IN TEXT SLOT                           KD170205
+B022      OI    0(R2),X'80'   SET LAST PARM FLAG                         KD170205
+          LA    R1,APARM   POINT TO ALLOC BLOCK                          01780001
+          DYNALLOC                 ALLOCATE                              01790001
+APARM     DC    0F'0',X'80',AL3(ALLOCBLK)   ALLOCATION PARM              06030001
+ALLOCBLK DC     AL1(20,1),X'5000',AL2(0,0),A(ALOCTEXT,0,0)  ALLOC BLOCK  06040001
+ALOCTEXT DC     A(ALOCDDNK),17F'0'    ALLOC PARAMETER SLOTS              KD170205
+ALOCDDNK DC     AL2(0,1,8)      DDNAME KEY                               06060001
+
+
+ALOCSUBN DC     XL4'0'          SUBSYS NAME                              06380001
+ALLOCTPK DC     X'8012',AL2(1,1) DSN TYPE KEY                            KD170205
+ALLOCTYP DC     X'80'            TYPE=PDSE                               KD170205
+ALLOCVRK DC     X'802C',AL2(1,1) PDSE VERSION NUMBER                     KD170205
+ALLOCVER DC     X'02'            VERSION TWO                             KD170205
+          EJECT                                                          06390001
+
